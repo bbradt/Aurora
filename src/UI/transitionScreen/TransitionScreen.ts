@@ -4,6 +4,8 @@ import Quote from "./Quote.js";
 import { indentWithNBS } from "../../util/Text.js";
 import WorldScreen from "../worldScreen/WorldScreen.js";
 import Game from "../../Game.js";
+import WinScreen from "../staticScreen/WinScreen.js";
+import LoseScreen from "../staticScreen/LoseScreen.js";
 
 // "loading" screen shown between turns
 export default class TransitionScreen implements Page {
@@ -33,7 +35,7 @@ export default class TransitionScreen implements Page {
         ]);
     }
 
-    refresh(): void {}
+    refresh(): void { }
 
     startLoading(): void {
         setTimeout(() => this.loadingArea.classList.add("loading"));
@@ -48,6 +50,14 @@ export default class TransitionScreen implements Page {
     }
 
     private continueToNextTurn(): void {
-        GameWindow.show(new WorldScreen(this.run));
+        if (this.run.getHasWon()) {
+            GameWindow.show(new LoseScreen(this.run, "Lose Message", UI.makeDiv()));
+        }
+        else if (this.run.getHasLost()) {
+            GameWindow.show(new WinScreen(this.run, "Win Message", UI.makeDiv()));
+        }
+        else {
+            GameWindow.show(new WorldScreen(this.run));
+        }
     }
 }
