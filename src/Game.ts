@@ -21,10 +21,15 @@ export default class Game {
 
     private completedTechs: Technology[] = [];
 
+    private hasWon: boolean = false;
+    private hasLost: boolean = false;
+
     constructor() {
-        this.world = new World (WorldGenerationParameters.standardWorldParameters());
+        this.world = new World(WorldGenerationParameters.standardWorldParameters());
         this.inventory = new Inventory(this.world);
         this.questStage = TutorialQuestUnpackLander;
+        this.hasWon = false;
+        this.hasLost = false;
     }
 
     getCurrentQuestDescription(): string {
@@ -77,6 +82,14 @@ export default class Game {
             .filter(tech => !this.hasUnlockedTechnology(tech));
     }
 
+    getHasWon(): boolean {
+        return this.hasWon;
+    }
+
+    getHasLost(): boolean {
+        return this.hasLost;
+    }
+
     // this is called at the end of each turn
     completeTurn() {
         // calculate resource production
@@ -88,6 +101,8 @@ export default class Game {
         this.turnNumber++;
 
         this.updateQuestState();
+        this.hasWon = this.questStage.isWinState;
+        this.hasLost = this.questStage.isLoseState;
     }
 
     // moves a resource conversion up by 1 in the production order
