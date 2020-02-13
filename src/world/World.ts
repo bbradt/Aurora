@@ -1,8 +1,8 @@
 import Tile from "./Tile.js";
-import { Arrays } from "../util/Arrays.js"
+import { Arrays } from "../util/Arrays.js";
 import Wasteland from "./Tiles/Wasteland.js";
 import Mountain from "./Tiles/Mountain.js";
-import Random from "../util/Random.js";
+import { Random } from "../util/Random.js";
 import GridCoordinates from "./GridCoordinates.js";
 import WorldGenerationParameters from "./WorldGenerationParameters.js";
 import Species from "../resources/Species.js";
@@ -21,16 +21,16 @@ export default class World {
 
         // generate empty map
         this.grid = new Array(this.height);
-        for(let row = 0; row < this.height; row++) {
+        for (let row = 0; row < this.height; row++) {
             this.grid[row] = new Array(this.width);
-            for(let column = 0; column < this.width; column++) {
+            for (let column = 0; column < this.width; column++) {
                 this.grid[row][column] = new Wasteland(new GridCoordinates(column, row));
             }
         }
 
         // place random mountains
         const mountainNumber = Random.intBetween(params.minMountains, params.maxMountains);
-        for(let i = 0; i < mountainNumber; i++) {
+        for (let i = 0; i < mountainNumber; i++) {
             const wastelandTiles = this.getTiles().filter((tile: Tile) => (tile instanceof Wasteland));
             const position = Random.fromArray(wastelandTiles).position;
             this.placeTile(new Mountain(position));
@@ -43,7 +43,7 @@ export default class World {
     }
 
     // place a tile into the grid in the position given by the tile's coordinates
-    placeTile(tile: Tile) {
+    placeTile(tile: Tile): void {
         this.grid[tile.position.y][tile.position.x] = tile;
     }
 
@@ -72,11 +72,11 @@ export default class World {
         return tiles;
     }
 
-    getTileAtCoordinates(coordinates: GridCoordinates) {
+    getTileAtCoordinates(coordinates: GridCoordinates): Tile {
         return this.grid[coordinates.y][coordinates.x];
     }
 
-    getTilesInCircle(center: GridCoordinates, radius: number) {
+    getTilesInCircle(center: GridCoordinates, radius: number): Tile[] {
         return this.getTiles().filter(tile => (center.distanceFrom(tile.position) <= radius));
     }
 

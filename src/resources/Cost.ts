@@ -6,7 +6,7 @@ export default class Cost {
         public quantity: number
     ){}
 
-    toString() {
+    toString(): string {
         return `${this.resource.name} x${this.quantity}`;
     }
 }

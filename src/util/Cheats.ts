@@ -1,36 +1,35 @@
 import Resource from "../resources/Resource.js";
 import Game from "../Game.js";
-import WorldScreen from "../UI/worldScreen/WorldScreen.js";
 import Species from "../resources/Species.js";
+import { GameWindow } from "../UI/GameWindow.js";
 
 // container for cheat methods for debugging/testing via the browser console
 class Cheats {
     constructor(
         private currentGame: Game,
-        private worldScreen: WorldScreen // we need this to trigger UI updates when cheats change things
     ){}
 
     // call this to update game and ui after each cheat's effect
-    refresh() {
+    refresh(): void {
         this.currentGame.updateQuestState();
-        this.worldScreen.refreshComponents();
+        GameWindow.refreshCurrentPage();
     }
 
-    addResource(resource: Resource, quantity: number) {
+    addResource(resource: Resource, quantity: number): void {
         this.currentGame.inventory.addResource(resource, quantity);
         this.refresh();
     }
 
-    addPopulation(species: Species, quantity: number) {
+    addPopulation(species: Species, quantity: number): void {
         this.currentGame.inventory.addWorkers(species, quantity);
         this.refresh();
     }
 }
 
-// makes cheat methods available from the console (should be enabled whenever on the world screen)
-export function enableCheats(run: Game, worldScreen: WorldScreen) {
+// makes cheat methods available from the console
+export function enableCheats(run: Game): void {
 
-    const cheatsObject = new Cheats(run, worldScreen);
+    const cheatsObject = new Cheats(run);
     const theWindow: any = window;
     theWindow.cheatsAddResource = (resource: Resource, quantity: number) => cheatsObject.addResource(resource, quantity);
     theWindow.cheatsAddPopulation = (species: Species, quantity: number) => cheatsObject.addPopulation(species, quantity);
@@ -42,13 +41,4 @@ export function enableCheats(run: Game, worldScreen: WorldScreen) {
     Object.freeze(Species);
     theWindow.Resources = Resource;
     theWindow.Species = Species;
-}
-
-// removes cheats and associated attributes from global scope
-export function disableCheats() {
-    const theWindow: any = window;
-    theWindow.cheatsAddResource = undefined;
-    theWindow.cheatsAddPopulation = undefined;
-    theWindow.Resources = undefined;
-    theWindow.Species = undefined;
 }

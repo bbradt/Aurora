@@ -1,38 +1,54 @@
 import Game from "../../Game.js";
-import UI from "../UI.js";
-import GameWindow from "../GameWindow.js";
+import { UI } from "../UI.js";
+import { GameWindow, Page } from "../GameWindow.js";
 import Conversion from "../../resources/Conversion.js";
 import Inventory from "../../resources/Inventory.js";
+import WorldScreen from "../worldScreen/WorldScreen.js";
+
+import Sortable from "sortablejs";
 
 // the production screen is where the player selects the priority order for resource conversions
-export default class ProductionScreen {
-    private html: HTMLElement;
+export default class ProductionScreen implements Page {
+    readonly html: HTMLElement;
     private run: Game;
 
     constructor(run: Game) {
         this.run = run;
-        this.html = UI.makeDiv(['production-screen']);
+        this.html = UI.makeDiv(["production-screen"]);
         this.refresh();
     }
 
-    refresh() {
+    refresh(): void {
         // clone of the inventory that represents what the inventory will be after this turn's conversions are applied
         const inventoryCopy = this.run.inventory.clone();
 
-        const freeConversions: Conversion[] = this.run.getResourceConversions().filter(conversion => (conversion.isFree()));
-        const freeConversionsHTML: HTMLElement[] = freeConversions.map(conversion => this.renderConversion(conversion, true, false));
-        inventoryCopy.applyConversions(freeConversions);
+        const { free, costly } = this.run.getResourceConversions();
 
-        const costlyConversions: Conversion[] = this.run.getResourceConversions().filter((conversion: Conversion) => (!conversion.isFree()));
+        inventoryCopy.applyConversions(free);
+
+        const freeConversionsHTML: HTMLElement[] = free.map(conversion => this.renderConversion(conversion, true));
+        const freeConversionsDiv = UI.makeDivContaining(freeConversionsHTML);
+
         const costlyConversionsHTML: HTMLElement[] = [];
-        for (const conversion of costlyConversions) {
+        for (const conversion of costly) {
             if (inventoryCopy.canAfford(conversion.inputs) && inventoryCopy.hasEnoughWorkers(conversion.requiredWorkers)) {
-                costlyConversionsHTML.push(this.renderConversion(conversion, true, true));
+                costlyConversionsHTML.push(this.renderConversion(conversion, true));
                 inventoryCopy.applyConversions([conversion]);
             } else {
-                costlyConversionsHTML.push(this.renderConversion(conversion, false, true));
+                costlyConversionsHTML.push(this.renderConversion(conversion, false));
             }
         }
+        const costlyConversionsDiv = UI.makeDivContaining(costlyConversionsHTML);
+
+        Sortable.create(costlyConversionsDiv, {
+            onEnd: evt => {
+                const fromIndex = evt.oldDraggableIndex;
+                const toIndex = evt.newDraggableIndex;
+                if (fromIndex !== undefined && toIndex !== undefined) {
+                    this.shiftCostlyConversion(fromIndex, toIndex);
+                }
+            }
+        });
 
         UI.fillHTML(this.html, [
             UI.makePara("Resource Production Report", [`production-screen-label`]),
@@ -40,17 +56,17 @@ export default class ProductionScreen {
             UI.makePara("Resources available at start of next production cycle:", [`production-screen-label`]),
             this.renderInventory(this.run.inventory),
             UI.makePara("Resource generation in next production cycle:", [`production-screen-label`]),
-            UI.makeDivContaining(freeConversionsHTML),
+            freeConversionsDiv,
             UI.makePara("Resource conversion in next production cycle:", [`production-screen-label`]),
-            UI.makeDivContaining(costlyConversionsHTML),
+            costlyConversionsDiv,
             UI.makePara(`Unused workers at end of next production cycle: ${inventoryCopy.getAvailableWorkers()}`, [`production-screen-label`]),
             UI.makePara("Resources available at end of next production cycle:", [`production-screen-label`]),
             this.renderInventory(inventoryCopy),
-            UI.makeButton("Back", () => {GameWindow.showWorldScreen();}, ['production-screen-back-button']),
+            UI.makeButton("Back", () => {GameWindow.show(new WorldScreen(this.run));}, ["production-screen-back-button"]),
         ]);
     }
 
-    getHTML() {
+    getHTML(): HTMLElement {
         return this.html;
     }
 
@@ -61,43 +77,36 @@ export default class ProductionScreen {
             resourceDescriptions.push(UI.makePara("(none)"));
         }
 
-        return UI.makeDivContaining(resourceDescriptions, ['production-screen-inventory']);
+        return UI.makeDivContaining(resourceDescriptions, ["production-screen-inventory"]);
     }
 
-    renderConversion(conversion: Conversion, canAfford: boolean, showMoveButtons: boolean) {
-        const div = UI.makeDiv(['flex-horizontal']);
+    renderConversion(conversion: Conversion, canAfford: boolean): HTMLElement {
+        const div = UI.makeDiv(["flex-horizontal"]);
 
         let text = conversion.toString();
-        let cssClass = 'conversion-description-normal'; // css class that changes to show the conversion's status
+        let cssClass = "conversion-description-normal"; // css class that changes to show the conversion's status
         if (!conversion.enabled) {
             text = `(disabled) ${conversion.toString()}`;
-            cssClass = 'conversion-description-disabled';
+            cssClass = "conversion-description-disabled";
         } else if (!canAfford) {
             text = `(cannot afford) ${conversion.toString()}`;
             cssClass = `conversion-description-cannot-afford`;
         }
 
-        div.appendChild(UI.makeButton(text, () => {this.toggle(conversion);}, [cssClass, `conversion-description`]));
-
-        if (showMoveButtons) {
-            div.appendChild(UI.makeButton("Move Up", () => this.moveConversionUp(conversion)));
-            div.appendChild(UI.makeButton("Move Down", () => this.moveConversionDown(conversion)));
-        }
+        const textPara = UI.makePara(text, [cssClass, "conversion-description"]);
+        const textDiv = UI.makeDivContaining([textPara], ["conversion-description-box"]);
+        div.appendChild(textDiv);
+        div.appendChild(UI.makeButton("Toggle", () => { this.toggle(conversion); }));
 
         return div;
     }
 
-    private moveConversionUp(conversion: Conversion) {
-        this.run.increaseConversionPriority(conversion);
+    private shiftCostlyConversion(fromIndex: number, toIndex: number): void {
+        this.run.shiftCostlyConversionPriority(fromIndex, toIndex);
         this.refresh();
     }
 
-    private moveConversionDown(conversion: Conversion) {
-        this.run.decreaseConversionPriority(conversion);
-        this.refresh();
-    }
-
-    private toggle(conversion: Conversion) {
+    private toggle(conversion: Conversion): void {
         conversion.enabled = !conversion.enabled;
         this.refresh();
     }

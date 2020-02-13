@@ -1,3 +1,6 @@
+// quests need to be able to indirectly reference the following quest(s)
+/* eslint-disable @typescript-eslint/no-use-before-define */
+
 import { QuestStage, QuestPath } from "./QuestStage.js";
 import Resource from "../resources/Resource.js";
 import { MinResourcePredicate, MinTilePredicate, MinPopulationPredicate } from "../predicates/WorldPredicates.js";
@@ -41,7 +44,7 @@ export const TutorialQuestGetOre: QuestStage = new QuestStage(
 
 export const TutorialQuestPopulation200: QuestStage = new QuestStage(
     "Grow total worker population to 250",
-    `A ${Habitat.tileName} has capacity for ${new Habitat(new GridCoordinates(0,0)).populationCapacity.capacity} colonists`,
+    `A ${Habitat.tileName} has capacity for ${new Habitat(new GridCoordinates(0, 0)).populationCapacity.capacity} colonists`,
     [
         new QuestPath(
             new MinPopulationPredicate(250),

@@ -15,9 +15,14 @@
 }
 
 .conversion-description {
+    margin: 0pt; /* remove margin between description and surrounding box */
     font-size: 16pt;
-    width: 50%;
     text-align: left;
+}
+
+.conversion-description-box {
+    width: 50%;
+    border: 2px solid white;
 }
 
 .conversion-description-normal {

@@ -1,5 +1,4 @@
 import GridCoordinates from "../world/GridCoordinates";
-import World from "../world/World";
 import Game from "../Game";
 import Cost from "../resources/Cost";
 import TilePredicate from "../predicates/TilePredicate";
@@ -30,7 +29,7 @@ export default class TileProject {
         return this.visibilityRequirements.every(requirement => requirement.evaluate(run, position));
     }
 
-    doAction(position: GridCoordinates, run: Game) {
+    doAction(position: GridCoordinates, run: Game): void {
         if (!this.canDo(position, run)) {
             throw `tried to do project ${this.title} without meeting requirements`;
         }

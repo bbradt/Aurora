@@ -1,13 +1,12 @@
 import World from "./world/World.js";
 import Inventory from "./resources/Inventory.js";
-import Tile from "./world/Tile.js";
-import { Arrays } from "./util/Arrays.js";
 import Conversion from "./resources/Conversion.js";
 import WorldGenerationParameters from "./world/WorldGenerationParameters.js";
 import { QuestStage } from "./quests/QuestStage.js";
 import { TutorialQuestUnpackLander } from "./quests/Quests.js";
 import Technology from "./techtree/Technology.js";
 import { ResearchableTechnologies } from "./techtree/TechTree.js";
+import { Arrays } from "./util/Arrays.js";
 
 // Holds the state of one run of the game, including the game world, inventory, and run statistics
 export default class Game {
@@ -37,22 +36,39 @@ export default class Game {
     }
 
     getCurrentQuestHint(): string | undefined {
-        return this.questStage.hint
+        return this.questStage.hint;
     }
 
     getPreviousQuestDescription(): string {
         return this.prevQuestDescription;
     }
 
-    // returns all available resource conversions in the order in which they will be applied
-    getResourceConversions() {
-        const allConversions: Conversion[] = Arrays.flatten(this.world.getTiles().map((tile: Tile) => tile.resourceConversions));
+    private getUnorderedConversions(): Conversion[] {
+        return Arrays.flatten(this.world.getTiles().map(tile => tile.resourceConversions));
+    }
+
+    // Returns all available free and costly resource conversions in the order
+    // in which they will be applied, as two separate arrays
+    getResourceConversions(): { free: Conversion[]; costly: Conversion[]; } {
+        const allConversions = this.getUnorderedConversions();
+        const { yes: free, no: costly } = Arrays.partition(allConversions, c => c.isFree());
         // sort by priority number
-        allConversions.sort((a: Conversion, b: Conversion) => (a.priority - b.priority));
+        free.sort((a, b) => a.priority - b.priority);
+        costly.sort((a, b) => a.priority - b.priority);
+        return { free, costly };
+    }
+
+    // Returns all resource conversions in the order in which they will be
+    // applied; i.e., all free conversions first, followed by costly conversions
+    // in decreasing order of priority.
+    getAllResourceConversions(): Conversion[] {
+        const allConversions = this.getUnorderedConversions();
+        // sort by priority number
+        allConversions.sort((a, b) => a.priority - b.priority);
         return allConversions;
     }
 
-    updateQuestState() {
+    updateQuestState(): void {
         const nextStage = this.questStage.updatedStage(this);
         if (nextStage != this.questStage) {
             this.prevQuestDescription = this.questStage.description;
@@ -65,7 +81,7 @@ export default class Game {
         return this.completedTechs.includes(tech);
     }
 
-    unlockTechnology(tech: Technology) {
+    unlockTechnology(tech: Technology): void {
         if (!this.hasUnlockedTechnology(tech)) {
             this.completedTechs.push(tech);
         }
@@ -91,9 +107,9 @@ export default class Game {
     }
 
     // this is called at the end of each turn
-    completeTurn() {
+    completeTurn(): void {
         // calculate resource production
-        this.inventory.applyConversions(this.getResourceConversions());
+        this.inventory.applyConversions(this.getAllResourceConversions());
 
         this.inventory.releaseWorkers();
         this.inventory.doPopulationGrowth();
@@ -105,50 +121,31 @@ export default class Game {
         this.hasLost = this.questStage.isLoseState;
     }
 
-    // moves a resource conversion up by 1 in the production order
-    increaseConversionPriority(conversion: Conversion) {
-        if (conversion.priority == 0) {
-            return; // priority #0 is for the free conversions (conversions with no inputs), which should not be moved to any other priority
+    // Moves a costly conversion to a different point in the order of
+    // priorities.
+    shiftCostlyConversionPriority(fromIndex: number, toIndex: number): void {
+        if (fromIndex === toIndex || fromIndex < 0) {
+            return;
         }
 
-        const conversionsList = this.getResourceConversions();
-        const index = conversionsList.indexOf(conversion);
-
-        if (index == -1) {
-            return; // conversion not found in the current world
-        }
-        else if (index == 0) {
-            return; // already first in line
+        const { costly } = this.getResourceConversions();
+        if (toIndex >= costly.length) {
+            return;
         }
 
-        // swap priority number with the previous conversion
-        const conversionAbove = conversionsList[index - 1];
-
-        if (conversionAbove.priority == 0) {
-            return; // can't move into priority 0 because only conversions with no inputs should be priority 0
+        // The priority of toIndex after shifting intermediate priorities
+        const priority = costly[fromIndex].priority;
+        if (fromIndex < toIndex) {
+            // Shift intermediate priorities down
+            for (let i = fromIndex; i < toIndex; i++) {
+                costly[i].priority = costly[i + 1].priority;
+            }
+        } else {
+            // Shift intermediate priorities up
+            for (let i = fromIndex; i > toIndex; i--) {
+                costly[i].priority = costly[i - 1].priority;
+            }
         }
-        [conversion.priority, conversionAbove.priority] = [conversionAbove.priority, conversion.priority];
-
-    }
-
-    // moves a resource conversion down by 1 in the production order
-    decreaseConversionPriority(conversion: Conversion) {
-        if (conversion.priority == 0) {
-            return; // priority #0 is for the free conversions (conversions with no inputs), which should not be moved to any other priority
-        }
-
-        const conversionsList = this.getResourceConversions();
-        const index = conversionsList.indexOf(conversion);
-
-        if (index == -1) {
-            return; // conversion not found in the current world
-        }
-        else if (index == (conversionsList.length - 1)) {
-            return; // already first last in line
-        }
-
-        // swap priority number with the next conversion
-        const conversionBelow = conversionsList[index + 1];
-        [conversion.priority, conversionBelow.priority] = [conversionBelow.priority, conversion.priority];
+        costly[toIndex].priority = priority;
     }
 }

@@ -1,6 +1,12 @@
 import Game from "../../Game.js";
-import UI from "../UI.js";
-import GameWindow from "../GameWindow.js";
+import { UI } from "../UI.js";
+import { GameWindow } from "../GameWindow.js";
+import MainMenu from "../menu/MainMenu.js";
+import TransitionScreen from "../transitionScreen/TransitionScreen.js";
+import ProductionScreen from "../productionScreen/ProductionScreen.js";
+import ResearchScreen from "../researchScreen/ResearchScreen.js";
+import WinScreen from "../staticScreen/WinScreen.js";
+import LoseScreen from "../staticScreen/LoseScreen.js";
 
 export default class WorldScreenHeader {
     private html: HTMLElement;
@@ -10,16 +16,26 @@ export default class WorldScreenHeader {
      */
 
     constructor(run: Game) {
-        this.html = UI.makeDiv(['world-screen-header']);
+        this.html = UI.makeDiv(["world-screen-header"]);
         this.run = run;
         this.refresh();
     }
 
-    refresh() {
-        const quitButton = UI.makeButton("Quit Game", () => { GameWindow.showMainMenu(); });
-        const transitionButton = UI.makeButton("Next Turn", () => { GameWindow.transitionToNextTurn(); });
-        const productionScreenButton = UI.makeButton("Manage Production", () => { GameWindow.showProductionScreen() });
-        const researchScreenButton = UI.makeButton("Research Projects", () => { GameWindow.showResearchScreen() });
+    refresh(): void {
+        const quitButton = UI.makeButton("Quit Game", () => {
+            GameWindow.show(new MainMenu());
+        });
+        const transitionButton = UI.makeButton("Next Turn", () => {
+            const transitionScreen = new TransitionScreen(this.run);
+            GameWindow.show(transitionScreen);
+            transitionScreen.startLoading();
+        });
+        const productionScreenButton = UI.makeButton("Manage Production", () => {
+            GameWindow.show(new ProductionScreen(this.run));
+        });
+        const researchScreenButton = UI.makeButton("Research Projects", () => {
+            GameWindow.show(new ResearchScreen(this.run));
+        });
 
         const questHint = this.run.getCurrentQuestHint();
         const questDescription = this.run.getCurrentQuestDescription();
@@ -27,8 +43,12 @@ export default class WorldScreenHeader {
         let questHTML = UI.makePara(`Objective: ${questText}`, ["world-screen-quest-description"]);
 
         // THESE BUTTONS ARE FOR DEMONSTRATION PURPOSES ONLY, REMOVE BEFORE MERGING
-        const gameOverButton = UI.makeButton("Lose the Game", () => { GameWindow.showLoseScreen() });
-        const winButton = UI.makeButton("Win the Game", () => { GameWindow.showWinScreen() });
+        const gameOverButton = UI.makeButton("Lose the Game", () => {
+            GameWindow.show(new LoseScreen(this.run, "Lose Message", UI.makeDiv()));
+        });
+        const winButton = UI.makeButton("Win the Game", () => {
+            GameWindow.show(new WinScreen(this.run, "Win Message", UI.makeDiv()));
+        });
 
 
         // show message after quest completion

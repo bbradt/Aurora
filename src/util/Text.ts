@@ -4,7 +4,7 @@ export function indentWithNBS(str: string):  string {
     const fakeTab = "\u00A0".repeat(4);
 
     str = str.replace(/\t/g, fakeTab);
-    str = str.replace(/    /g, fakeTab);
+    str = str.replace(/ {4}/g, fakeTab);
     return str;
 }
 

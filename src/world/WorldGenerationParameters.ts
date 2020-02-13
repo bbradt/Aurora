@@ -1,5 +1,5 @@
 import Tile from "./Tile.js";
-import GridCoordinates from "./GridCoordinates.js";;
+import GridCoordinates from "./GridCoordinates.js";
 import Wasteland from "./Tiles/Wasteland.js";
 import Mountain from "./Tiles/Mountain.js";
 import Lander from "./Tiles/Lander.js";

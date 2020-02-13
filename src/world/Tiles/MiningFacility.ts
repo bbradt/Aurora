@@ -51,7 +51,7 @@ export default class MiningFacility extends Tile {
                 new ConversionCountPredicate(2),
             ]
         )
-    ]
+    ];
 
     static readonly tileName: string = "Ore Processing Center";
     getTileName(): string {

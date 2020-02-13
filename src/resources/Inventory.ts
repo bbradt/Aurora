@@ -16,11 +16,11 @@ export default class Inventory {
         private world: World, // used to determine population size limits
     ){}
 
-    addResource(resource: Resource, quantity: number) {
+    addResource(resource: Resource, quantity: number): void {
         this.resourceQuantities.add(resource, quantity);
     }
 
-    removeResource(resource: Resource, quantity: number) {
+    removeResource(resource: Resource, quantity: number): void {
         this.resourceQuantities.remove(resource, quantity);
     }
 
@@ -28,17 +28,17 @@ export default class Inventory {
         return this.resourceQuantities.get(resource) || 0;
     }
 
-    addWorkers(species: Species, quantity: number) {
+    addWorkers(species: Species, quantity: number): void {
         this.populationQuantities.add(species, quantity);
         this.populationQuantities.set(species, clamp(0, this.populationQuantities.get(species), this.world.getPopulationCapacity(species)));
     }
 
     // makes the entire population pool available as workers (makes all workers unoccupied)
-    releaseWorkers() {
+    releaseWorkers(): void {
         this.availableWorkers = this.populationQuantities.getSum();
     }
 
-    occupyWorkers(quantity: number) {
+    occupyWorkers(quantity: number): void {
         if (this.availableWorkers < quantity) {
             throw "insufficient workers";
         }
@@ -48,7 +48,7 @@ export default class Inventory {
         this.availableWorkers = this.availableWorkers - quantity;
     }
 
-    doPopulationGrowth() {
+    doPopulationGrowth(): void {
 
         for (const species of this.populationQuantities.positiveQuantityKeys()) {
             const growth = Math.floor(species.growthMultiplier * this.populationQuantities.get(species));
@@ -84,7 +84,7 @@ export default class Inventory {
         return this.availableWorkers >= requiredWorkers;
     }
 
-    payCost(costs: Cost[]) {
+    payCost(costs: Cost[]): void {
         if (this.canAfford(costs)) {
             for (const cost of costs) {
                 this.removeResource(cost.resource, cost.quantity);
@@ -109,7 +109,7 @@ export default class Inventory {
     }
 
     // Attempts to apply each resource conversion in sequence, skipping those for which the inputs are unavailable at that point in the process
-    applyConversions(conversions: Conversion[]) {
+    applyConversions(conversions: Conversion[]): void {
         for (const conversion of conversions){
             if (this.canAfford(conversion.inputs) && this.hasEnoughWorkers(conversion.requiredWorkers) && conversion.enabled) {
                 this.payCost(conversion.inputs);

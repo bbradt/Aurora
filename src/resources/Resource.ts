@@ -18,6 +18,6 @@ export default class Resource {
 
     // returns a list of all resource instances
     static values(): Resource[] {
-        return Object.keys(Resource).map((k: string) => ((Resource as { [key: string]: any})[k] as Resource));
+        return Object.keys(Resource).map((k: string) => ((Resource as { [key: string]: any;})[k] as Resource));
     }
 }

@@ -7,9 +7,9 @@ declare module "twemoji-parser" {
     };
     export type ParsingOptions = {
         buildUrl?: (codepoints: string, assetType: string) => string;
-        assetType?: 'png' | 'svg';
+        assetType?: "png" | "svg";
     };
     export function parse(text: string, options?: ParsingOptions): EmojiEntity[];
     export function toCodePoints(unicodeSurrogates: string): string[];
-    export const TypeName: 'emoji';
+    export const TypeName: "emoji";
 }

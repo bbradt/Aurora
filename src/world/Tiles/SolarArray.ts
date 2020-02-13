@@ -1,10 +1,8 @@
 import Tile from "../Tile.js";
-import TileProject from "../../tileProjects/TileProject.js";
 import GridCoordinates from "../GridCoordinates.js";
 import Conversion from "../../resources/Conversion.js";
 import Cost from "../../resources/Cost.js";
 import Resource from "../../resources/Resource.js";
-import UI from "../../UI/UI.js";
 import { SolarPanelsTexture } from "../../UI/Images.js";
 
 export default class SolarPanels extends Tile {
@@ -20,7 +18,7 @@ export default class SolarPanels extends Tile {
         ),
     ];
 
-    static readonly tileName: string = "Photovoltaic Array"
+    static readonly tileName: string = "Photovoltaic Array";
     getTileName(): string {
         return SolarPanels.tileName;
     }

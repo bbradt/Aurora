@@ -54,7 +54,7 @@ export default class Wasteland extends Tile {
         ),
     ];
 
-    static readonly tileName: string = "Wasteland"
+    static readonly tileName: string = "Wasteland";
     getTileName(): string {
         return Wasteland.tileName;
     }

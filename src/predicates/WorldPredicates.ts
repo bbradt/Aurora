@@ -30,10 +30,10 @@ export class MinTilePredicate extends WorldPredicate {
 
     evaluate(run: Game): boolean {
         const matchingTiles = run.world.getTiles().filter(tile => tile instanceof this.tileType);
-        return (matchingTiles.length) >= this.minQuantity
+        return (matchingTiles.length) >= this.minQuantity;
     }
     toString(): string {
-        const plural:string = (this.minQuantity == 1) ? "" : "s";
+        const plural: string = (this.minQuantity == 1) ? "" : "s";
         return `have at least ${this.minQuantity}  ${this.tileType.tileName} tile${plural}`;
     }
 }

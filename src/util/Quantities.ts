@@ -10,11 +10,11 @@ export default class Quantities<T> {
 
     constructor(){}
 
-    add(key: T, quantity: number) {
+    add(key: T, quantity: number): void {
         this.set(key, this.get(key) + quantity);
     }
 
-    remove(key: T, quantity: number) {
+    remove(key: T, quantity: number): void {
         this.add(key, quantity * -1);
     }
 
@@ -22,7 +22,7 @@ export default class Quantities<T> {
         return this.map.get(key) || 0;
     }
 
-    set(key: T, quantity: number) {
+    set(key: T, quantity: number): void {
         if (quantity < 0) {
             throw "tried to set quantity to negative value";
         }
@@ -38,7 +38,7 @@ export default class Quantities<T> {
     }
 
     // all of the keys in the backing map should be associated with positive values
-    positiveQuantityKeys() {
+    positiveQuantityKeys(): T[] {
         return Array.from(this.map.keys());
     }
 

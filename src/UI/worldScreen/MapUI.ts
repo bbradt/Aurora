@@ -1,7 +1,7 @@
 import World from "../../world/World.js";
-import UI from "../UI.js";
+import { UI } from "../UI.js";
 import Tile from "../../world/Tile.js";
-import {clamp} from "../../util/Util.js";
+import { clamp } from "../../util/Util.js";
 import GridCoordinates from "../../world/GridCoordinates.js";
 import WorldScreen from "./WorldScreen.js";
 import { HighlightSelectionImage } from "../Images.js";
@@ -21,17 +21,17 @@ export default class MapUI {
     private viewWidth: number = 12; // width of viewable area in tiles
     private viewHeight: number = 8; // height of viewable area in tiles
 
-    private viewPosition: GridCoordinates = new GridCoordinates(0, 0); //coordinates of the current view area's top-left tile
+    private viewPosition: GridCoordinates = new GridCoordinates(0, 0); // coordinates of the current view area's top-left tile
     private highlightedCoordinates: GridCoordinates | null = null; // coordinates of current selected tile, null if no tile is selected
 
     constructor(parent: WorldScreen, world: World) {
         this.world = world;
         this.parentScreen = parent;
 
-        this.canvas = UI.makeCanvas(this.viewWidth * MapUI.pixelsPerTile, this.viewHeight * MapUI.pixelsPerTile, ['map-canvas']);
+        this.canvas = UI.makeCanvas(this.viewWidth * MapUI.pixelsPerTile, this.viewHeight * MapUI.pixelsPerTile, ["map-canvas"]);
 
         // attach click listener for tile selection
-        this.canvas.addEventListener('click', ev => this.handleClick(ev));
+        this.canvas.addEventListener("click", ev => this.handleClick(ev));
 
         // render the starting area
         this.refreshViewableArea();
@@ -41,15 +41,15 @@ export default class MapUI {
         return this.canvas;
     }
 
-    public refreshViewableArea() {
+    public refreshViewableArea(): void {
         const tilesInViewableArea = this.world.getTilesInRectangle(this.viewPosition.x, this.viewPosition.y, this.viewWidth, this.viewHeight);
         for (const tile of tilesInViewableArea)  {
             this.rerenderTile(tile);
         }
     }
 
-    private drawSquareAtCoordinates(image: HTMLImageElement, coordinates: GridCoordinates) {
-        const context = this.canvas.getContext('2d')!;
+    private drawSquareAtCoordinates(image: HTMLImageElement, coordinates: GridCoordinates): void {
+        const context = this.canvas.getContext("2d")!;
         context.imageSmoothingEnabled = false; // disable antialiasing to allow crispy pixel art
 
         const x = coordinates.x - this.viewPosition.x;
@@ -63,14 +63,14 @@ export default class MapUI {
     }
 
     // redraws the given tile at that tile's position
-    private rerenderTile(tile: Tile) {
+    private rerenderTile(tile: Tile): void {
         this.drawSquareAtCoordinates(tile.texture, tile.position);
         if (tile.position === this.highlightedCoordinates) {
             this.drawSquareAtCoordinates(MapUI.highlightImage, tile.position);
         }
     }
 
-    private selectTile(tile: Tile | null) {
+    private selectTile(tile: Tile | null): void {
         if (tile && tile.position === this.highlightedCoordinates) {
             return; // ignore selecting a tile that is already selected
         }
@@ -93,7 +93,7 @@ export default class MapUI {
         this.parentScreen.changeSidebarTile(this.highlightedCoordinates);
     }
 
-    private moveViewArea(right: number, down: number) {
+    private moveViewArea(right: number, down: number): void {
         const oldX = this.viewPosition.x;
         const oldY = this.viewPosition.y;
 
@@ -107,7 +107,7 @@ export default class MapUI {
         // move existing canvas pixels
         const translateX = right * MapUI.pixelsPerTile * -1;
         const translateY = down * MapUI.pixelsPerTile * -1;
-        const context = this.canvas.getContext('2d')!;
+        const context = this.canvas.getContext("2d")!;
         context.drawImage(this.canvas, translateX, translateY);
 
         // rerender newly visible tiles
@@ -136,7 +136,7 @@ export default class MapUI {
         }
     }
 
-    handleClick(ev: MouseEvent) {
+    handleClick(ev: MouseEvent): void {
         const x = Math.floor((ev.pageX - this.canvas.offsetLeft) * (this.viewWidth / this.canvas.clientWidth)) + this.viewPosition.x;
         const y = Math.floor((ev.pageY - this.canvas.offsetTop) * (this.viewHeight / this.canvas.clientHeight)) + this.viewPosition.y;
 
@@ -144,18 +144,18 @@ export default class MapUI {
         this.selectTile(targetTile);
     }
 
-    handleKeyDown(ev: KeyboardEvent) {
+    handleKeyDown(ev: KeyboardEvent): void {
         const code = ev.code;
-        if(code === "ArrowUp" || code === "KeyW") {
+        if (code === "ArrowUp" || code === "KeyW") {
             this.moveViewArea(0, -1);
         }
-        if(code === "ArrowLeft" || code === "KeyA") {
+        if (code === "ArrowLeft" || code === "KeyA") {
             this.moveViewArea(-1, 0);
         }
-        if(code === "ArrowDown" || code === "KeyS") {
+        if (code === "ArrowDown" || code === "KeyS") {
             this.moveViewArea(0, 1);
         }
-        if(code === "ArrowRight" || code === "KeyD") {
+        if (code === "ArrowRight" || code === "KeyD") {
             this.moveViewArea(1, 0);
         }
     }

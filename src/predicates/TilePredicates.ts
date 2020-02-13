@@ -36,8 +36,8 @@ export class ConversionCountPredicate extends TilePredicate {
     constructor(
         private requiredCount: number
     ) {
-        super()
-    };
+        super();
+    }
 
     evaluate(run: Game, position: GridCoordinates): boolean {
         return (run.world.getTileAtCoordinates(position).resourceConversions.length === this.requiredCount);

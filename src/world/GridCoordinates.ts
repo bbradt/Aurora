@@ -5,7 +5,7 @@ export default class GridCoordinates {
         readonly y: number
     ) {}
 
-    toString() {
+    toString(): string {
         return `(${this.x}, ${this.y})`;
     }
 

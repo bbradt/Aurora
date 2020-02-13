@@ -1,6 +1,7 @@
 import Game from "../../Game.js";
-import UI from "../UI.js";
-import GameWindow from "../GameWindow.js";
+import { UI } from "../UI.js";
+import { GameWindow, Page } from "../GameWindow.js";
+import MainMenu from "../menu/MainMenu.js";
 
 // A StaticScreen is a generic class for rendering a screen that corresponds with a particular game state
 //     and which has limited interactable functionality.
@@ -10,8 +11,10 @@ import GameWindow from "../GameWindow.js";
 //     but the generic functionality could be extended to other screens
 //     such as alert screens, or maybe some of the already implemented screens
 //     which work with limited interaction
-export default class StaticScreen {
-    private html: HTMLElement;      // the HTML for rendering
+// NOTE: Some of the intention behind this class has been duplicated with the Page interface
+//     we may consider merging functionality to avoid duplication in the future.
+export default class StaticScreen implements Page {
+    readonly html: HTMLElement;      // the HTML for rendering
     private run: Game;              // the game element, currenlty unused
     public name: string;            // name of the script, for element naming
     private header: string;         // a header always displayed at the top of the screen
@@ -32,7 +35,9 @@ export default class StaticScreen {
         UI.fillHTML(this.html, [
             UI.makeHeader(this.header),
             UI.makePara(this.message, [this.getElementName("-message")]),
-            UI.makeButton("Quit", () => { GameWindow.showMainMenu(); }, [this.getElementName('-exit-button')]),
+            UI.makeButton("Quit", () => {
+                GameWindow.show(new MainMenu());
+            }, [this.getElementName('-exit-button')]),
             this.innerHtml
         ]);
     }

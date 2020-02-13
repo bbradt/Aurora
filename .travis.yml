@@ -4,12 +4,15 @@ node_js:
 - '12'
 
 install:
-- npm install
+- npm ci
 
 script:
 - npm run build
 
 before_deploy:
+# If we're minifying, include the extra dependencies
+- "[ \"$MINIFY\" = true ] && cp ci/package.json . && cp ci/package-lock.json . && npm ci"
+# Collect build/minification output and assets into deploy_dist for deployment
 - "ci/scripts/before_deploy/make_dist.sh deploy_dist"
 
 deploy:

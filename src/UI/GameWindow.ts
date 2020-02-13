@@ -1,92 +1,44 @@
-import MainMenuUI from "./menu/MainMenuUI.js";
-import UI from "./UI.js";
-import WorldScreen from "./worldScreen/WorldScreen.js";
-import Game from "../Game.js";
-import { disableCheats, enableCheats } from "../util/Cheats.js";
-import Resource from "../resources/Resource.js";
-import TransitionScreen from "./transitionScreen/TransitionScreen.js";
-import ProductionScreen from "./productionScreen/ProductionScreen.js";
-import CreditsScreen from "./menu/CreditsScreen.js";
-import WorldScreenHeader from "./worldScreen/WorldScreenHeader.js";
-import Species from "../resources/Species.js";
-import ResearchScreen from "./ResearchScreen.js";
-import WinScreen from "./staticScreen/WinScreen.js";
-import LoseScreen from "./staticScreen/LoseScreen.js";
+import { UI } from "./UI.js";
 
-export default class GameWindow {
+export interface Page {
+    // root element containing this page's HTML
+    readonly html: HTMLElement;
+    // updates the information shown on the page (may be a no-op for pages that don't show changing information)
+    refresh(): void;
 
-    private static rootDiv: HTMLElement = document.getElementById('rootdiv')!; // root div for all of our HTML
-    private static currentRun: Game;
+    // pages make optionally implement one or both of these methods in order to receive keyboard input
+    handleKeyDown?(event: KeyboardEvent): void;
+    handleKeyUp?(event: KeyboardEvent): void;
+}
 
-    public static showMainMenu() {
-        disableCheats();
-        UI.fillHTML(this.rootDiv, [MainMenuUI.renderMainMenu()]);
-    }
+export namespace GameWindow {
 
-    public static showCredits() {
-        disableCheats();
-        UI.fillHTML(this.rootDiv, [CreditsScreen.render()]);
-    }
+    // root div for all of our HTML
+    const rootDiv: HTMLElement = document.getElementById("rootdiv")!;
 
-    public static startGame() {
-        this.currentRun = new Game();
-        this.showWorldScreen();
-    }
+    // currently-displayed page
+    let currentPage: Page | undefined = undefined;
 
-    public static showWorldScreen() {
-        const worldScreen = new WorldScreen(this.currentRun);
-        UI.fillHTML(this.rootDiv, [worldScreen.getHTML()]);
+    export function show(page: Page): void {
+        currentPage = page;
+        UI.fillHTML(rootDiv, [page.html]);
 
-        enableCheats(this.currentRun, worldScreen); // cheats are available when on the world screen
-
-        // Attach keyboard input listener
-        document.onkeydown = (e: KeyboardEvent) => {
-            worldScreen.handleKeyDown(e);
+        // keyboard handlers will only be called on pages that include them
+        document.onkeydown = (ev: KeyboardEvent) => {
+            if (page.handleKeyDown) {
+                page.handleKeyDown(ev);
+            }
+        };
+        document.onkeyup = (ev: KeyboardEvent) => {
+            if (page.handleKeyUp) {
+                page.handleKeyUp(ev);
+            }
         };
     }
 
-    public static showProductionScreen() {
-        disableCheats();
-
-        const productionScreen: ProductionScreen = new ProductionScreen(this.currentRun);
-        UI.fillHTML(this.rootDiv, [productionScreen.getHTML()]);
-    }
-
-    public static showResearchScreen() {
-        disableCheats();
-
-        const researchScreen: ResearchScreen = new ResearchScreen(this.currentRun);
-        UI.fillHTML(this.rootDiv, [researchScreen.getHTML()]);
-    }
-
-    // Show a lose screen
-    public static showLoseScreen() {
-        disableCheats();
-        const loseScreen: LoseScreen = new LoseScreen(this.currentRun, "This is a lose message", UI.makeDiv());
-        UI.fillHTML(this.rootDiv, [loseScreen.getHTML()]);
-    }
-
-    // Show a win screen
-    public static showWinScreen() {
-        disableCheats();
-        const winScreen: WinScreen = new WinScreen(this.currentRun, "This is a win message", UI.makeDiv());
-        UI.fillHTML(this.rootDiv, [winScreen.getHTML()]);
-    }
-
-    public static transitionToNextTurn() {
-        disableCheats();
-        const transitionScreen = new TransitionScreen();
-        UI.fillHTML(this.rootDiv, [transitionScreen.getHTML()]);
-
-        transitionScreen.startLoading();
-        this.currentRun.completeTurn(); // update game state
-        transitionScreen.revealButton();
-        // check for win/lose state, and show static screen
-        if (this.currentRun.getHasLost()) {
-            this.showLoseScreen();
-        }
-        else if (this.currentRun.getHasWon()) {
-            this.showWinScreen();
+    export function refreshCurrentPage(): void {
+        if (currentPage) {
+            currentPage.refresh();
         }
     }
 }

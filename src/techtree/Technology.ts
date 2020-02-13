@@ -17,7 +17,7 @@ export default class Technology {
     }
 
     // hidden technologies cannot be unlocked through the tech tree, but can be used for scripted actions
-    static makeHiddenTechnology(name: string, description: string, researchCost: Cost, visible: boolean = false) {
+    static makeHiddenTechnology(name: string, description: string, researchCost: Cost, visible: boolean = false): Technology {
         return new Technology(name, description, [], researchCost, visible);
     }
 }
