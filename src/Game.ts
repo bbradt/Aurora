@@ -75,6 +75,8 @@ export default class Game {
             this.questCompletionShown = false;
             this.questStage = nextStage;
         }
+        this.hasWon = this.questStage.isWinState;
+        this.hasLost = this.questStage.isLoseState;
     }
 
     hasUnlockedTechnology(tech: Technology): boolean {
@@ -117,8 +119,6 @@ export default class Game {
         this.turnNumber++;
 
         this.updateQuestState();
-        this.hasWon = this.questStage.isWinState;
-        this.hasLost = this.questStage.isLoseState;
     }
 
     // Moves a costly conversion to a different point in the order of
