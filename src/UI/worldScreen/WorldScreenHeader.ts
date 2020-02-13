@@ -16,15 +16,20 @@ export default class WorldScreenHeader {
     }
 
     refresh() {
-        const quitButton = UI.makeButton("Quit Game", () => {GameWindow.showMainMenu();});
-        const transitionButton = UI.makeButton("Next Turn", () => {GameWindow.transitionToNextTurn();});
-        const productionScreenButton = UI.makeButton("Manage Production", () => {GameWindow.showProductionScreen()});
-        const researchScreenButton = UI.makeButton("Research Projects", () => {GameWindow.showResearchScreen()});
+        const quitButton = UI.makeButton("Quit Game", () => { GameWindow.showMainMenu(); });
+        const transitionButton = UI.makeButton("Next Turn", () => { GameWindow.transitionToNextTurn(); });
+        const productionScreenButton = UI.makeButton("Manage Production", () => { GameWindow.showProductionScreen() });
+        const researchScreenButton = UI.makeButton("Research Projects", () => { GameWindow.showResearchScreen() });
 
         const questHint = this.run.getCurrentQuestHint();
         const questDescription = this.run.getCurrentQuestDescription();
-        const questText = questHint? `${questDescription}\n(hint: ${questHint})` : questDescription;
+        const questText = questHint ? `${questDescription}\n(hint: ${questHint})` : questDescription;
         let questHTML = UI.makePara(`Objective: ${questText}`, ["world-screen-quest-description"]);
+
+        // THESE BUTTONS ARE FOR DEMONSTRATION PURPOSES ONLY, REMOVE BEFORE MERGING
+        const gameOverButton = UI.makeButton("Lose the Game", () => { GameWindow.showLoseScreen() });
+        const winButton = UI.makeButton("Win the Game", () => { GameWindow.showWinScreen() });
+
 
         // show message after quest completion
         const prevQuestDescription = this.run.getPreviousQuestDescription();
@@ -44,6 +49,8 @@ export default class WorldScreenHeader {
             researchScreenButton,
             transitionButton,
             questHTML,
+            gameOverButton,
+            winButton
         ]);
     }
 

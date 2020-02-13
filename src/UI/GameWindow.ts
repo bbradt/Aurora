@@ -10,7 +10,8 @@ import CreditsScreen from "./menu/CreditsScreen.js";
 import WorldScreenHeader from "./worldScreen/WorldScreenHeader.js";
 import Species from "../resources/Species.js";
 import ResearchScreen from "./ResearchScreen.js";
-
+import WinScreen from "./staticScreen/WinScreen.js";
+import LoseScreen from "./staticScreen/LoseScreen.js";
 
 export default class GameWindow {
 
@@ -58,6 +59,20 @@ export default class GameWindow {
         UI.fillHTML(this.rootDiv, [researchScreen.getHTML()]);
     }
 
+    // Show a lose screen
+    public static showLoseScreen() {
+        disableCheats();
+        const loseScreen: LoseScreen = new LoseScreen(this.currentRun, "This is a lose message", UI.makeDiv());
+        UI.fillHTML(this.rootDiv, [loseScreen.getHTML()]);
+    }
+
+    // Show a win screen
+    public static showWinScreen() {
+        disableCheats();
+        const winScreen: WinScreen = new WinScreen(this.currentRun, "This is a win message", UI.makeDiv());
+        UI.fillHTML(this.rootDiv, [winScreen.getHTML()]);
+    }
+
     public static transitionToNextTurn() {
         disableCheats();
         const transitionScreen = new TransitionScreen();
@@ -66,5 +81,12 @@ export default class GameWindow {
         transitionScreen.startLoading();
         this.currentRun.completeTurn(); // update game state
         transitionScreen.revealButton();
+        // check for win/lose state, and show static screen
+        if (this.currentRun.getHasLost()) {
+            this.showLoseScreen();
+        }
+        else if (this.currentRun.getHasWon()) {
+            this.showWinScreen();
+        }
     }
 }

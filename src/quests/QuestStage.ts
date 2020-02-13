@@ -6,7 +6,7 @@ export class QuestPath {
     constructor(
         readonly requirement: WorldPredicate,
         readonly nextStage: () => QuestStage,
-    ){}
+    ) { }
 }
 
 export class QuestStage {
@@ -15,7 +15,8 @@ export class QuestStage {
         readonly hint: string | undefined,
         readonly paths: QuestPath[],
         readonly isWinState = false,
-    ) {}
+        readonly isLoseState = false,
+    ) { }
 
     // returns the next stage if an advancement path requirement is met, otherwise returns this stage
     updatedStage(run: Game): QuestStage {
