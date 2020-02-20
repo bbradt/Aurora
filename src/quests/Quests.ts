@@ -8,6 +8,7 @@ import Habitat from "../world/Tiles/Habitat.js";
 import SolarPanels from "../world/Tiles/SolarArray.js";
 import Lander from "../world/Tiles/Lander.js";
 import GridCoordinates from "../world/GridCoordinates.js";
+import Ending from "./Ending.js";
 
 export const TutorialQuestUnpackLander: QuestStage = new QuestStage(
     "Deploy shelter for the colonists",
@@ -58,3 +59,19 @@ export const UnwinnableQuestStage: QuestStage = new QuestStage(
     undefined,
     [],
 );
+
+
+export const GameOverStage: QuestStage = new QuestStage(
+    "You lose",
+    undefined,
+    [],
+    new Ending("Game Over", "You lost the game")
+)
+
+export const VictoryStage: QuestStage = new QuestStage(
+    "You win",
+    undefined,
+    [],
+    new Ending("You Win!", "You won the game")
+)
+

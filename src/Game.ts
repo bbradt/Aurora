@@ -7,6 +7,9 @@ import { TutorialQuestUnpackLander } from "./quests/Quests.js";
 import Technology from "./techtree/Technology.js";
 import { ResearchableTechnologies } from "./techtree/TechTree.js";
 import { Arrays } from "./util/Arrays.js";
+import { GameWindow } from "./UI/GameWindow.js";
+import EndScreen from "./UI/endScreen/EndScreen.js";
+import Ending from "./quests/Ending.js";
 
 // Holds the state of one run of the game, including the game world, inventory, and run statistics
 export default class Game {
@@ -36,6 +39,11 @@ export default class Game {
 
     getPreviousQuestDescription(): string {
         return this.prevQuestDescription;
+    }
+
+    // this method violates the privacy of quest-stage, but is needed for cheats to set quest stages
+    setQuestStage(questStage: QuestStage) {
+        this.questStage = questStage;
     }
 
     private getUnorderedConversions(): Conversion[] {
@@ -69,6 +77,9 @@ export default class Game {
             this.prevQuestDescription = this.questStage.description;
             this.questCompletionShown = false;
             this.questStage = nextStage;
+        }
+        if (this.questStage.endState) {
+            GameWindow.show(new EndScreen(this.questStage.endState));
         }
     }
 
