@@ -66,12 +66,12 @@ export const GameOverStage: QuestStage = new QuestStage(
     undefined,
     [],
     new Ending("Game Over", "You lost the game")
-)
+);
 
 export const VictoryStage: QuestStage = new QuestStage(
     "You win",
     undefined,
     [],
     new Ending("You Win!", "You won the game")
-)
+);
 

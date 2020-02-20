@@ -9,7 +9,6 @@ import { ResearchableTechnologies } from "./techtree/TechTree.js";
 import { Arrays } from "./util/Arrays.js";
 import { GameWindow } from "./UI/GameWindow.js";
 import EndScreen from "./UI/endScreen/EndScreen.js";
-import Ending from "./quests/Ending.js";
 
 // Holds the state of one run of the game, including the game world, inventory, and run statistics
 export default class Game {
@@ -42,7 +41,7 @@ export default class Game {
     }
 
     // this method violates the privacy of quest-stage, but is needed for cheats to set quest stages
-    setQuestStage(questStage: QuestStage) {
+    setQuestStage(questStage: QuestStage): void {
         this.questStage = questStage;
     }
 
